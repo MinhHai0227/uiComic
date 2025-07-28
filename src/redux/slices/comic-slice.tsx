@@ -1,3 +1,4 @@
+import { getAllComicFlByUserApi } from "@/services/comic-follower-service";
 import { getAllComicApi, getComicBySlugApi } from "@/services/comic-service";
 import {
   comicParams,
@@ -31,6 +32,17 @@ export const getComicBySlug = createAsyncThunk<ComicSlugResponeType, string>(
     }
   }
 );
+
+export const getAllcomicFlUser = createAsyncThunk<
+  ComicResponseType,
+  { page?: number; limit?: number }
+>("comic/getAllcomicFlUser", async ({ page, limit }, thunkAPI) => {
+  try {
+    return await getAllComicFlByUserApi(page, limit);
+  } catch (error: any) {
+    return thunkAPI.rejectWithValue(error.response?.data || "Error");
+  }
+});
 
 interface ComicState extends ComicResponseType {
   comicSlug: ComicSlugResponeType | null;
@@ -68,6 +80,13 @@ export const comicSlice = createSlice({
       .addCase(getComicBySlug.fulfilled, (state, action) => {
         state.loading = false;
         state.comicSlug = action.payload;
+      })
+      .addCase(getAllcomicFlUser.pending, (state, action) => {
+        state.loading = true;
+      })
+      .addCase(getAllcomicFlUser.fulfilled, (state, action) => {
+        state.loading = false;
+        Object.assign(state, action.payload);
       });
   },
 });

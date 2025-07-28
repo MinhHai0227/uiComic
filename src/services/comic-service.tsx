@@ -4,6 +4,8 @@ import {
   comicParams,
   ComicResponseType,
   ComicSlugResponeType,
+  searchParams,
+  topViewComicParams,
 } from "@/types/comic-type";
 
 const getAllComicApi = async (
@@ -66,6 +68,22 @@ const deleteComicApi = async (id: number) => {
   return await axios.delete(`comic/${id}`);
 };
 
+const getTopViewComicApi = async (
+  params?: topViewComicParams
+): Promise<ComicResponseType> => {
+  return await axios.get("viewhistory", {
+    params,
+  });
+};
+
+const searchComicApi = async (
+  params: searchParams
+): Promise<ComicResponseType> => {
+  return await axios.get("comic/search/hhh", {
+    params,
+  });
+};
+
 export {
   getAllComicApi,
   setShowHideComicApi,
@@ -73,4 +91,6 @@ export {
   deleteComicApi,
   editComicApi,
   getComicBySlugApi,
+  getTopViewComicApi,
+  searchComicApi,
 };

@@ -49,7 +49,7 @@ const EditCountryForm = ({ country, onEditSuccess }: EditCountryProps) => {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>name</FormLabel>
+                <FormLabel>Tên Quốc gia</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>

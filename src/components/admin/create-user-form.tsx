@@ -50,7 +50,7 @@ const CreateUserForm = ({ onSuccess }: { onSuccess: () => void }) => {
               name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Tên</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -76,7 +76,7 @@ const CreateUserForm = ({ onSuccess }: { onSuccess: () => void }) => {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel>Mật khẩu</FormLabel>
                   <FormControl>
                     <Input type="password" {...field} />
                   </FormControl>
@@ -89,7 +89,7 @@ const CreateUserForm = ({ onSuccess }: { onSuccess: () => void }) => {
               name="role"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Role</FormLabel>
+                  <FormLabel>Chức vụ</FormLabel>
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}

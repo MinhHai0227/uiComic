@@ -1,7 +1,7 @@
 import Container from "@/components/container";
 import logo from "@/assets/logo.png";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { Link, useNavigate } from "react-router-dom";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { useTheme } from "@/components/theme-provider";
 import {
   DropdownMenu,
@@ -13,18 +13,43 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/redux/store";
+import { useEffect, useMemo, useState } from "react";
 import { logoutApi } from "@/services/auth-service";
 import { logout } from "@/redux/slices/auth-slice";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { getAllCategory } from "@/redux/slices/category-slice";
+import { Bell, ChevronDown, ChevronUp } from "lucide-react";
+import { getUserProfile } from "@/redux/slices/user-slice";
+import { debounce } from "lodash";
+import { searchComic } from "@/redux/slices/search-slice";
 
 type CategoryKey = "category1" | "category2" | "category3";
+type RatingType = {
+  name: string;
+  url: string;
+};
+const ratings: RatingType[] = [
+  {
+    name: "Top Ngày",
+    url: "/top-ngay",
+  },
+  {
+    name: "Top Tuần",
+    url: "/top-tuan",
+  },
+  {
+    name: "Top Tháng",
+    url: "/top-thang",
+  },
+];
 
 const Header = () => {
   const { theme, setTheme } = useTheme();
-  const dispatch = useDispatch();
-  const isLogin = useSelector((state: RootState) => state.auth.user !== null);
+  const dispatch = useAppDispatch();
+  const { loading, data } = useAppSelector((state) => state.category);
+  const isLogin = useAppSelector((state) => state.auth.user !== null);
+  const user = useAppSelector((state) => state.user.userProfile);
+  const { unseenCount } = useAppSelector((state) => state.notification);
 
   const handlLogout = async () => {
     const res = await logoutApi();
@@ -57,6 +82,41 @@ const Header = () => {
       };
     });
   };
+
+  useEffect(() => {
+    if (isLogin) {
+      dispatch(getUserProfile());
+    }
+    dispatch(getAllCategory());
+  }, [dispatch, isLogin]);
+
+  //search
+  const [keyword, setKeyword] = useState("");
+  const comics = useAppSelector((state) => state.search.data);
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((value: string) => {
+        if (value.trim() !== "") {
+          dispatch(searchComic({ keyword: value, page: 1, limit: 5 }));
+        }
+      }, 500),
+    [dispatch]
+  );
+
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setKeyword(value);
+    debouncedSearch(value);
+  };
+  const navigate = useNavigate();
+
+  const handleSearchClick = () => {
+    if (keyword.trim() !== "") {
+      navigate(`/tim-kiem?keyword=${encodeURIComponent(keyword.trim())}`);
+    }
+    setKeyword("");
+  };
+
   return (
     <header>
       <Container>
@@ -68,6 +128,7 @@ const Header = () => {
                 truyen<span className="text-amber-500">docviet</span>
               </span>
             </Link>
+
             <Button
               variant={"outline"}
               onClick={toggleTheme}
@@ -92,11 +153,16 @@ const Header = () => {
 
           <div className="hidden lg:block lg:w-md relative">
             <input
+              value={keyword}
+              onChange={onChange}
               className="border-1 border-amber-300 rounded-full h-11 w-full pl-5 pr-11"
               type="text"
               placeholder="Tìm truyện tranh, manhua, manga, webtoon..."
             />
-            <button className="absolute right-0 top-1 cursor-pointer hover:text-gray-500 pl-2 pr-3 py-1.5 duration-300">
+            <button
+              onClick={handleSearchClick}
+              className="absolute right-0 top-1 cursor-pointer hover:text-gray-500 pl-2 pr-3 py-1.5 duration-300"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -112,65 +178,76 @@ const Header = () => {
                 />
               </svg>
             </button>
+            {keyword && comics.length > 0 && (
+              <ul className="absolute left-0 top-full mt-2 w-full max-w-md bg-white rounded-lg shadow-lg z-20 max-h-80 overflow-auto border border-gray-100 transition-all duration-200">
+                {comics.map((comic) => (
+                  <Link
+                    to={`truyen-tranh/${comic.slug}`}
+                    onClick={() => {
+                      setKeyword("");
+                    }}
+                    key={comic.id}
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors duration-150 cursor-pointer border-b border-gray-100 last:border-b-0"
+                  >
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage
+                        src={comic.cover_image ?? ""}
+                        alt={comic.title}
+                      />
+                      <AvatarFallback className="bg-blue-100 text-blue-600 font-semibold">
+                        {comic.title.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-800 line-clamp-1">
+                        {comic.title}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+              </ul>
+            )}
           </div>
 
           {isLogin ? (
             <ul className="flex gap-2  items-center justify-between">
               <li>
                 <DropdownMenu>
-                  <DropdownMenuTrigger asChild className="cursor-pointer">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="size-8 text-amber-400"
-                    >
-                      <path d="M5.85 3.5a.75.75 0 0 0-1.117-1 9.719 9.719 0 0 0-2.348 4.876.75.75 0 0 0 1.479.248A8.219 8.219 0 0 1 5.85 3.5ZM19.267 2.5a.75.75 0 1 0-1.118 1 8.22 8.22 0 0 1 1.987 4.124.75.75 0 0 0 1.48-.248A9.72 9.72 0 0 0 19.266 2.5Z" />
-                      <path
-                        fillRule="evenodd"
-                        d="M12 2.25A6.75 6.75 0 0 0 5.25 9v.75a8.217 8.217 0 0 1-2.119 5.52.75.75 0 0 0 .298 1.206c1.544.57 3.16.99 4.831 1.243a3.75 3.75 0 1 0 7.48 0 24.583 24.583 0 0 0 4.83-1.244.75.75 0 0 0 .298-1.205 8.217 8.217 0 0 1-2.118-5.52V9A6.75 6.75 0 0 0 12 2.25ZM9.75 18c0-.034 0-.067.002-.1a25.05 25.05 0 0 0 4.496 0l.002.1a2.25 2.25 0 1 1-4.5 0Z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
+                  <DropdownMenuTrigger
+                    asChild
+                    className="cursor-pointer relative"
+                  >
+                    <div>
+                      <Bell className="size-6 text-primary" />
+                      {unseenCount > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
+                          {unseenCount}
+                        </span>
+                      )}
+                    </div>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-80 ">
-                    <DropdownMenuLabel>Thông báo</DropdownMenuLabel>
+
+                  <DropdownMenuContent className="w-96 p-2">
+                    <DropdownMenuLabel className="text-base font-bold">
+                      Thông báo
+                    </DropdownMenuLabel>
+
                     <DropdownMenuSeparator />
-                    <DropdownMenuGroup className="py-2 max-h-64 overflow-y-auto">
-                      <DropdownMenuItem>
-                        <div className="shadow px-1 py-1 rounded-sm w-full cursor-pointer">
-                          <p className="font-semibold">
-                            QQ vừa trả lời bình luận của bạn
-                          </p>
-                          <div className="text-xs flex mt-0.5">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              strokeWidth="1.5"
-                              stroke="currentColor"
-                              className="size-4"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                              />
-                            </svg>
-                            <span>16:46 01/08/2024</span>
-                          </div>
-                        </div>
-                      </DropdownMenuItem>
-                    </DropdownMenuGroup>
+                    <div className="max-h-80 overflow-y-auto space-y-2 px-1 py-2">
+                      <div className="text-center text-sm text-muted-foreground py-4">
+                        Không có thông báo
+                      </div>
+                    </div>
                     <DropdownMenuSeparator />
-                    <DropdownMenuGroup className="flex justify-between">
-                      <DropdownMenuItem className="cursor-pointer text-amber-400">
+
+                    <div className="flex justify-between px-1 py-1 text-sm">
+                      <button className="text-primary hover:underline">
                         Xem tất cả
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="cursor-pointer">
-                        Đánh dấu tất cả đã đọc
-                      </DropdownMenuItem>
-                    </DropdownMenuGroup>
+                      </button>
+                      <button className="text-muted-foreground hover:underline">
+                        Đánh dấu đã đọc
+                      </button>
+                    </div>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </li>
@@ -178,8 +255,11 @@ const Header = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Avatar className="cursor-pointer">
-                      <AvatarImage src={logo} alt="avatar" />
-                      <AvatarFallback>MH</AvatarFallback>
+                      <AvatarImage src={user?.avatar ?? ""} alt="avatar" />
+                      <AvatarFallback>
+                        {user?.username.charAt(0).toUpperCase() ??
+                          user?.email.charAt(0).toUpperCase()}
+                      </AvatarFallback>
                     </Avatar>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-56">
@@ -188,7 +268,11 @@ const Header = () => {
                     <DropdownMenuGroup>
                       <DropdownMenuItem>Danh sách theo dõi</DropdownMenuItem>
                       <DropdownMenuItem>Lịch sử đọc truyện</DropdownMenuItem>
-                      <DropdownMenuItem>Cài đặt thông tin</DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Link to="/passport/quan-ly-tai-khoan">
+                          Cài đặt thông tin
+                        </Link>
+                      </DropdownMenuItem>
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handlLogout}>
@@ -199,18 +283,15 @@ const Header = () => {
               </li>
             </ul>
           ) : (
-            <ul className="flex gap-2">
-              <li>
-                <Link to="/register">
-                  <Button className="cursor-pointer">Đăng kí</Button>
-                </Link>
-              </li>
-              <li>
-                <Link to="/login">
-                  <Button className="cursor-pointer">Đăng nhập</Button>
-                </Link>
-              </li>
-            </ul>
+            <div className="flex gap-2">
+              <Link to="/register" className={`${buttonVariants()} w-25`}>
+                Đăng Kí
+              </Link>
+
+              <Link to="/login" className={`${buttonVariants()} w-25`}>
+                Đăng Nhập
+              </Link>
+            </div>
           )}
         </div>
 
@@ -250,31 +331,23 @@ const Header = () => {
             <li className="cursor-pointer">
               <div className="flex items-center gap-0.5 group  dark:hover:bg-slate-700 hover:bg-amber-400 p-3 duration-400">
                 <span>Thể Loại</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth="1.5"
-                  stroke="currentColor"
-                  className="ml-0.5 size-4"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="m19.5 8.25-7.5 7.5-7.5-7.5"
-                  />
-                </svg>
+                <ChevronDown className="size-4" />
                 <div className="absolute opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-300 z-10 w-full right-0 top-12 shadow bg-slate-50 text-slate-950 dark:bg-slate-800 dark:text-slate-50 cursor-default">
                   <Container>
                     <div className="my-5 grid grid-cols-8 gap-4 px-3">
-                      <p>
-                        <Link
-                          className="hover:text-amber-500 transition-colors duration-200"
-                          to=""
-                        >
-                          Manhua
-                        </Link>
-                      </p>
+                      {loading
+                        ? "Đang tải dữ liệu"
+                        : data &&
+                          data.map((category) => (
+                            <p key={category.id}>
+                              <Link
+                                className="hover:text-amber-500 transition-colors duration-200"
+                                to={`/the-loai/${category.slug}`}
+                              >
+                                {category.name}
+                              </Link>
+                            </p>
+                          ))}
                     </div>
                   </Container>
                 </div>
@@ -284,43 +357,33 @@ const Header = () => {
             <li className="cursor-pointer">
               <div className="flex items-center gap-0.5 group  dark:hover:bg-slate-700 hover:bg-amber-400 p-3 duration-400">
                 <span>Xếp Hạng</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth="1.5"
-                  stroke="currentColor"
-                  className="ml-0.5 size-4"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="m19.5 8.25-7.5 7.5-7.5-7.5"
-                  />
-                </svg>
+                <ChevronDown className="size-4" />
                 <div className="absolute opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-300 z-10 w-full right-0 top-12 shadow bg-slate-50 text-slate-950 dark:bg-slate-800 dark:text-slate-50 cursor-default">
                   <Container>
                     <div className="my-5 grid grid-cols-8 gap-4 px-3">
-                      <p>
-                        <Link
-                          className="hover:text-amber-500 transition-colors duration-200"
-                          to=""
-                        >
-                          Top Ngày
-                        </Link>
-                      </p>
+                      {ratings &&
+                        ratings.map((rating, index) => (
+                          <p key={index}>
+                            <Link
+                              className="hover:text-amber-500 transition-colors duration-200"
+                              to={rating.url}
+                            >
+                              {rating.name}
+                            </Link>
+                          </p>
+                        ))}
                     </div>
                   </Container>
                 </div>
               </div>
             </li>
             <li className="hover:bg-amber-400  dark:hover:bg-slate-700 p-3 duration-400">
-              <Link to="/" className="py-3">
+              <Link to="/lich-su" className="py-3">
                 Lịch Sử
               </Link>
             </li>
             <li className="hover:bg-amber-400  dark:hover:bg-slate-700 p-3 duration-400">
-              <Link to="/" className="py-3">
+              <Link to="/truyen-dang-theo-doi" className="py-3">
                 Theo Dõi
               </Link>
             </li>
@@ -385,48 +448,27 @@ const Header = () => {
                   <span>Thể Loại</span>
                   <p>
                     {isVisible.category2 ? (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth="1.5"
-                        stroke="currentColor"
-                        className="ml-0.5 size-4"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="m4.5 15.75 7.5-7.5 7.5 7.5"
-                        />
-                      </svg>
+                      <ChevronUp className="size-4" />
                     ) : (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth="1.5"
-                        stroke="currentColor"
-                        className="ml-0.5 size-4"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="m19.5 8.25-7.5 7.5-7.5-7.5"
-                        />
-                      </svg>
+                      <ChevronDown className="size-4" />
                     )}
                   </p>
                 </div>
                 {isVisible.category2 && (
                   <div className="bg-slate-50 text-slate-950 dark:bg-slate-800 dark:text-slate-50 p-3 grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
-                    <p>
-                      <Link
-                        className="hover:text-amber-500 transition-colors duration-200"
-                        to="/"
-                      >
-                        Manhua
-                      </Link>
-                    </p>
+                    {loading
+                      ? "Đang tải dữ liệu"
+                      : data &&
+                        data.map((category) => (
+                          <p key={category.id}>
+                            <Link
+                              className="hover:text-amber-500 transition-colors duration-200"
+                              to={`/the-loai/${category.slug}`}
+                            >
+                              {category.name}
+                            </Link>
+                          </p>
+                        ))}
                   </div>
                 )}
               </li>
@@ -435,48 +477,25 @@ const Header = () => {
                   <span>Xếp Hạng</span>
                   <p>
                     {isVisible.category3 ? (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth="1.5"
-                        stroke="currentColor"
-                        className="ml-0.5 size-4"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="m4.5 15.75 7.5-7.5 7.5 7.5"
-                        />
-                      </svg>
+                      <ChevronUp className="size-4" />
                     ) : (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth="1.5"
-                        stroke="currentColor"
-                        className="ml-0.5 size-4"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="m19.5 8.25-7.5 7.5-7.5-7.5"
-                        />
-                      </svg>
+                      <ChevronDown className="size-4" />
                     )}
                   </p>
                 </div>
                 {isVisible.category3 && (
                   <div className="bg-slate-50 text-slate-950 dark:bg-slate-800 dark:text-slate-50 p-3 grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
-                    <p>
-                      <Link
-                        className="hover:text-amber-500 transition-colors duration-200"
-                        to="/"
-                      >
-                        Top Ngày
-                      </Link>
-                    </p>
+                    {ratings &&
+                      ratings.map((rating, index) => (
+                        <p key={index}>
+                          <Link
+                            className="hover:text-amber-500 transition-colors duration-200"
+                            to={rating.url}
+                          >
+                            {rating.name}
+                          </Link>
+                        </p>
+                      ))}
                   </div>
                 )}
               </li>

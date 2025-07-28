@@ -1,7 +1,7 @@
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { getComicBySlug } from "@/redux/slices/comic-slice";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,7 +12,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -36,7 +36,6 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react";
-import moment from "moment";
 import {
   deleteChapterApi,
   lockActiveChapterApi,
@@ -44,6 +43,9 @@ import {
 import CreateChapterForm from "@/components/admin/create-chapter-form";
 import { ChapterAction } from "@/types/chapter-type";
 import EditChapterForm from "@/components/admin/edit-chapter-form";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+dayjs.extend(utc);
 
 const ChapterPage = () => {
   const param = useParams();
@@ -119,7 +121,7 @@ const ChapterPage = () => {
         </h2>
         <Dialog open={openAddDialog} onOpenChange={setAddOpenDialog}>
           <DialogTrigger asChild>
-            <Button className="cursor-pointer">Thêm Chapter</Button>
+            <Button className="cursor-pointer">Thêm chương mới</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
@@ -142,13 +144,16 @@ const ChapterPage = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="text-center">Chap</TableHead>
-              <TableHead>Title</TableHead>
-              <TableHead className="text-center">Lock</TableHead>
-              <TableHead className="text-center">Xu</TableHead>
-              <TableHead className="text-center">Auto Unlock</TableHead>
-              <TableHead className="text-center">Unlock</TableHead>
-              <TableHead className="text-center">Action</TableHead>
+              <TableHead className="text-center">Chương</TableHead>
+              <TableHead>Mô tả chương</TableHead>
+              <TableHead className="text-center">Tình trạng</TableHead>
+              <TableHead className="text-center">Giá mở chương</TableHead>
+              <TableHead className="text-center">Thời gian tự động mở khóa</TableHead>
+              <TableHead className="text-center">
+                Quản lý ảnh
+              </TableHead>
+              <TableHead className="text-center">Mở/Khóa</TableHead>
+              <TableHead className="text-center">Hành động</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -191,9 +196,22 @@ const ChapterPage = () => {
                     {chapter.price_xu}
                   </TableCell>
                   <TableCell className="text-center align-middle text-sm">
-                    {moment(chapter.auto_unlock_time)
+                    {dayjs(chapter.auto_unlock_time)
                       .utcOffset(7)
                       .format("HH:mm DD/MM/YYYY")}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <Link
+                      to={`/admin/chapter/${chapter.slug}`}
+                      className={buttonVariants({
+                        variant: "outline",
+                        size: "sm",
+                        className:
+                          "rounded-xl shadow-md hover:bg-muted transition",
+                      })}
+                    >
+                      Tới quản lý ảnh
+                    </Link>
                   </TableCell>
                   <TableCell className="text-center align-middle text-sm">
                     <Button
@@ -308,7 +326,7 @@ const ChapterPage = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Bạn chắc chắn muốn xoá?</AlertDialogTitle>
             <AlertDialogDescription>
-              Hành động này không thể hoàn tác. Chương truyênh sẽ bị xoá vĩnh
+              Hành động này không thể hoàn tác. Chương truyện sẽ bị xoá vĩnh
               viễn khỏi hệ thống.
             </AlertDialogDescription>
           </AlertDialogHeader>

@@ -18,7 +18,6 @@ let isSessionExpired = false;
 const instance: AxiosInstance = axios.create({
   baseURL: "http://localhost:3000/api/v1/",
   withCredentials: true,
-  timeout: 5000,
 });
 
 // Hàm thêm callback khi refresh xong

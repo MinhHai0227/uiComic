@@ -1,5 +1,9 @@
 import axios from "@/lib/axios";
-import { loginType, registerType } from "@/types/auth-type";
+import {
+  ChangePasswordResponse,
+  loginType,
+  registerType,
+} from "@/types/auth-type";
 
 const loginApi = async (data: loginType) => {
   return await axios.post("auth/login", data);
@@ -21,4 +25,39 @@ const refetchTokenApi = async () => {
   return await axios.post("auth/refresh-token");
 };
 
-export { loginApi, registerApi, logoutApi, refetchTokenApi, getProfileApi };
+const changePasswordApi = async (
+  old_password: string,
+  new_password: string
+): Promise<ChangePasswordResponse> => {
+  return await axios.patch("auth/change-password", {
+    old_password,
+    new_password,
+  });
+};
+
+const forgotPasswordApi = async (
+  email: string
+): Promise<{ success: string }> => {
+  return await axios.post("auth/send-mailer", { email });
+};
+
+const resetPasswordApi = async (
+  token: string,
+  new_password: string
+): Promise<{ success: string }> => {
+  return await axios.patch("auth/reset-password", {
+    token,
+    new_password,
+  });
+};
+
+export {
+  loginApi,
+  registerApi,
+  logoutApi,
+  refetchTokenApi,
+  getProfileApi,
+  changePasswordApi,
+  forgotPasswordApi,
+  resetPasswordApi,
+};

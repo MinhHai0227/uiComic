@@ -109,7 +109,7 @@ const ComicPage = () => {
         </h2>
         <Dialog open={openAddDialog} onOpenChange={setAddOpenDialog}>
           <DialogTrigger asChild>
-            <Button className="cursor-pointer">Thêm Comic</Button>
+            <Button className="cursor-pointer">Thêm truyện mới</Button>
           </DialogTrigger>
           <DialogContent className="min-w-4xl">
             <DialogHeader>
@@ -128,7 +128,7 @@ const ComicPage = () => {
         <div className="relative w-full">
           <Input
             onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Tìm kiếm theo title hoặc english title ..."
+            placeholder="Tìm kiếm theo tên hoặc tên khác ..."
           />
           <Button
             className="absolute right-0 top-0 cursor-pointer"
@@ -159,13 +159,13 @@ const ComicPage = () => {
             }}
           >
             <SelectTrigger className="max-w-[250px]">
-              <SelectValue placeholder="Lọc danh sách Comic theo tình trạng" />
+              <SelectValue placeholder="Lọc danh sách truyện theo tình trạng" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="false">
-                Danh sách Comic đang hiển thị
+                Danh sách truyện đang hiển thị
               </SelectItem>
-              <SelectItem value="true">Dang sách Comic bị ẩn</SelectItem>
+              <SelectItem value="true">Dang sách truyện bị ẩn</SelectItem>
             </SelectContent>
           </Select>
           <Select onValueChange={(value) => setStatus(value)}>
@@ -183,12 +183,12 @@ const ComicPage = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="text-center">Image</TableHead>
-              <TableHead>Title</TableHead>
-              <TableHead>English Title</TableHead>
-              <TableHead className="text-center">Maneger Chapter</TableHead>
-              <TableHead className="text-center">Show/Hide Comic</TableHead>
-              <TableHead className="text-center">Action</TableHead>
+              <TableHead className="text-center">Ảnh</TableHead>
+              <TableHead>Tên truyện</TableHead>
+              <TableHead>Tên khác</TableHead>
+              <TableHead className="text-center">Quản lý chương</TableHead>
+              <TableHead className="text-center">Ẩn/Hiện truyện</TableHead>
+              <TableHead className="text-center">Hành động</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -225,7 +225,7 @@ const ComicPage = () => {
                           "rounded-xl shadow-md hover:bg-muted transition",
                       })}
                     >
-                      To Chapter
+                      Tới quản lý chương
                     </Link>
                   </TableCell>
                   <TableCell className="text-center">

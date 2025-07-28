@@ -1,5 +1,9 @@
 import axios from "@/lib/axios";
-import { Category } from "@/types/category-type";
+import {
+  Category,
+  categoryParams,
+  CategorySlugResponseType,
+} from "@/types/category-type";
 
 const getAllCategoryApi = async (): Promise<Category[]> => {
   return await axios.get("category");
@@ -17,9 +21,19 @@ const editCategoryApi = async (id: number, data: Omit<Category, "id">) => {
   return axios.patch(`category/${id}`, data);
 };
 
+const getCategoryBySlugApi = async (
+  slug: string,
+  params?: categoryParams
+): Promise<CategorySlugResponseType> => {
+  return await axios.get(`category/${slug}`, {
+    params,
+  });
+};
+
 export {
   getAllCategoryApi,
   createCategoryApi,
   deleteCategoryApi,
   editCategoryApi,
+  getCategoryBySlugApi,
 };

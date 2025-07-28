@@ -12,7 +12,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Input } from "@/components/ui/input";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { loginApi } from "@/services/auth-service";
 import { loginType } from "@/types/auth-type";
@@ -51,6 +51,22 @@ const Login = () => {
       setIsLoading(false);
     }
   };
+
+  const handleLoginGoogle = () => {
+    const googleLoginURL = "http://localhost:3000/api/v1/auth/google"; // BE route
+
+    const width = 500;
+    const height = 600;
+    const left = window.innerWidth / 2 - width / 2;
+    const top = window.innerHeight / 2 - height / 2;
+
+    window.open(
+      googleLoginURL,
+      "_blank",
+      `width=${width},height=${height},left=${left},top=${top}`
+    );
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -82,7 +98,7 @@ const Login = () => {
                       <FormLabel>Mật khẩu</FormLabel>
                       <Link
                         className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                        to="/"
+                        to="/forgot-password"
                       >
                         Quên mật khẩu ?
                       </Link>
@@ -102,9 +118,13 @@ const Login = () => {
                 {isLoading && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
                 Login
               </Button>
-              <Link to="/" className={buttonVariants({ variant: "outline" })}>
+              <Button
+                onClick={handleLoginGoogle}
+                type="button"
+                variant="outline"
+              >
                 Login with Google
-              </Link>
+              </Button>
             </div>
             <div className="mt-4 text-center text-sm">
               Chưa có tài khoản ?{" "}

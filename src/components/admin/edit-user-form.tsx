@@ -55,7 +55,7 @@ const EditUserForm = ({ user, onEditSuccess }: UserEditProps) => {
               name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Tên</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -81,7 +81,7 @@ const EditUserForm = ({ user, onEditSuccess }: UserEditProps) => {
               name="total_coin"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Total Coin</FormLabel>
+                  <FormLabel>Tổng xu</FormLabel>
                   <FormControl>
                     <Input type="number" {...field} />
                   </FormControl>
@@ -94,7 +94,7 @@ const EditUserForm = ({ user, onEditSuccess }: UserEditProps) => {
               name="role"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Role</FormLabel>
+                  <FormLabel>Chức vụ</FormLabel>
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}

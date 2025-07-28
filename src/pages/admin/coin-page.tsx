@@ -74,9 +74,9 @@ const CoinPage = () => {
             <TableCaption>Danh sách xu</TableCaption>
             <TableHeader>
               <TableRow>
-                <TableHead>Price</TableHead>
-                <TableHead>Coin</TableHead>
-                <TableHead className="text-center">Action</TableHead>
+                <TableHead>Số tiền</TableHead>
+                <TableHead>Xu nhận được</TableHead>
+                <TableHead className="text-center">Hành động</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

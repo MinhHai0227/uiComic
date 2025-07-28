@@ -1,5 +1,5 @@
 import axios from "@/lib/axios";
-import { ChapterAction } from "@/types/chapter-type";
+import { ChapterAction, ChapterSlugResponseType } from "@/types/chapter-type";
 
 const lockActiveChapterApi = async (id: number) => {
   return await axios.patch(`chapter/active/${id}`);
@@ -20,9 +20,16 @@ const editChapterApi = async (
   return await axios.patch(`chapter/${id}`, data);
 };
 
+const getChapterBySlugApi = async (
+  slug: string
+): Promise<ChapterSlugResponseType> => {
+  return await axios(`chapter/${slug}`);
+};
+
 export {
   lockActiveChapterApi,
   deleteChapterApi,
   createChapterApi,
   editChapterApi,
+  getChapterBySlugApi,
 };

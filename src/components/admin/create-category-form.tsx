@@ -16,7 +16,7 @@ import { createCategoryApi } from "@/services/category-service";
 import { Category } from "@/types/category-type";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -32,6 +32,13 @@ const CreateCategoryForm = () => {
       description: "",
     },
   });
+
+  const nameValue = form.watch("name");
+
+  useEffect(() => {
+    const slug = nameValue;
+    form.setValue("slug", slug);
+  }, [nameValue, form]);
 
   const onSubmit = async (data: z.infer<typeof categoryCreateSchema>) => {
     try {
@@ -53,7 +60,7 @@ const CreateCategoryForm = () => {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Tên thể loại</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -66,9 +73,8 @@ const CreateCategoryForm = () => {
               name="slug"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Slug</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input hidden {...field} value={nameValue} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -79,7 +85,7 @@ const CreateCategoryForm = () => {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>Mô tả</FormLabel>
                   <FormControl>
                     <Textarea {...field} />
                   </FormControl>

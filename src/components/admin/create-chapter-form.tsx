@@ -12,11 +12,13 @@ import { chapterActionSchema } from "@/lib/zod-schemas";
 import { createChapterApi } from "@/services/chapter-service";
 import { ChapterAction } from "@/types/chapter-type";
 import { zodResolver } from "@hookform/resolvers/zod";
+import dayjs from "dayjs";
 import { Loader2 } from "lucide-react";
-import moment from "moment";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import utc from "dayjs/plugin/utc";
+dayjs.extend(utc);
 
 type CreateChapterProps = {
   comic_id: number;
@@ -69,7 +71,7 @@ const CreateChapterForm = ({
               name="chapter_name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Chap</FormLabel>
+                  <FormLabel>Chương</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -82,7 +84,7 @@ const CreateChapterForm = ({
               name="chapter_title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Chapter Title</FormLabel>
+                  <FormLabel>Mô tả chương</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -95,7 +97,7 @@ const CreateChapterForm = ({
               name="price_xu"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Ptice Xu</FormLabel>
+                  <FormLabel>Giá mở chương</FormLabel>
                   <FormControl>
                     <Input type="number" {...field} />
                   </FormControl>
@@ -108,19 +110,19 @@ const CreateChapterForm = ({
               name="auto_unlock_time"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Auto Unlock</FormLabel>
+                  <FormLabel>Thời gian tự động mở khóa chương</FormLabel>
                   <FormControl>
                     <Input
                       type="datetime-local"
                       value={
                         field.value
-                          ? moment(field.value)
+                          ? dayjs(field.value)
                               .utcOffset(7)
                               .format("YYYY-MM-DDTHH:mm")
                           : ""
                       }
                       onChange={(e) => {
-                        const localDate = moment(e.target.value).toDate();
+                        const localDate = dayjs(e.target.value).toDate();
                         field.onChange(localDate);
                       }}
                     />

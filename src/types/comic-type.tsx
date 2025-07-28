@@ -1,10 +1,19 @@
-//params
+//params get all comic
 export interface comicParams {
   page?: number;
   limit?: number;
   search?: string;
   status?: string;
   active?: string;
+}
+
+//params get top view
+export interface topViewComicParams {
+  page?: number;
+  limit?: number;
+  date?: string;
+  status?: string;
+  country?: number;
 }
 
 //comic
@@ -95,4 +104,11 @@ export interface ChapterSlug {
   views: number;
   chapter_image_url: string;
   create_at: string;
+}
+
+//params search
+export interface searchParams {
+  page?: number;
+  limit?: number;
+  keyword?: string;
 }

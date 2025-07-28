@@ -50,7 +50,7 @@ const EditCoinForm = ({ coin, onEditSuccess }: EditCoinProps) => {
               name="price"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Price</FormLabel>
+                  <FormLabel>Số tiền</FormLabel>
                   <FormControl>
                     <Input type="number" {...field} />
                   </FormControl>
@@ -63,7 +63,7 @@ const EditCoinForm = ({ coin, onEditSuccess }: EditCoinProps) => {
               name="coin_amount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Coin</FormLabel>
+                  <FormLabel>Số xu nhận được</FormLabel>
                   <FormControl>
                     <Input type="number" {...field} />
                   </FormControl>

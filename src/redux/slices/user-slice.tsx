@@ -1,5 +1,5 @@
-import { getAllUserApi } from "@/services/user-service";
-import { userParams, userResponseType } from "@/types/user-type";
+import { getAllUserApi, getUserProfileApi } from "@/services/user-service";
+import { User, userParams, userResponseType } from "@/types/user-type";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 export const getAllUser = createAsyncThunk<userResponseType, userParams>(
@@ -16,7 +16,21 @@ export const getAllUser = createAsyncThunk<userResponseType, userParams>(
   }
 );
 
+export const getUserProfile = createAsyncThunk(
+  "user/getUserProfile",
+  async (_, thunkAPI) => {
+    try {
+      return await getUserProfileApi();
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || "Lỗi không xác định"
+      );
+    }
+  }
+);
+
 interface UserState extends userResponseType {
+  userProfile: User | null;
   loading: boolean;
 }
 
@@ -28,6 +42,7 @@ const initialState: UserState = {
   currentPage: 0,
   prevPage: 0,
   nextPage: 0,
+  userProfile: null,
   loading: false,
 };
 
@@ -43,6 +58,13 @@ export const userSlice = createSlice({
       .addCase(getAllUser.fulfilled, (state, action) => {
         state.loading = false;
         Object.assign(state, action.payload);
+      })
+      .addCase(getUserProfile.pending, (state, action) => {
+        state.loading = true;
+      })
+      .addCase(getUserProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.userProfile = action.payload;
       });
   },
 });

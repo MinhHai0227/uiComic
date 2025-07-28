@@ -58,9 +58,11 @@ const UserPage = () => {
   const [user, setUser] = useState<UserEdit | null>(null);
   const { data, loading, currentPage, prevPage, nextPage, totalPage } =
     useAppSelector((state) => state.user);
-
+  const crrUser = useAppSelector((state) => state.auth.user);
   useEffect(() => {
-    dispatch(getAllUser({ search, role, page, limit: 6 }));
+    if (crrUser?.role === "admin") {
+      dispatch(getAllUser({ search, role, page, limit: 6 }));
+    }
   }, [dispatch, search, role, page]);
 
   const handleOnDeleteUser = async (id: number) => {
@@ -86,6 +88,10 @@ const UserPage = () => {
     dispatch(getAllUser({ search, role, page, limit: 6 }));
   };
 
+  if (crrUser?.role === "editor") {
+    return <div>Bạn không đủ quyền hạn</div>;
+  }
+
   return (
     <>
       <div className="flex items-center justify-between">
@@ -94,7 +100,7 @@ const UserPage = () => {
         </h2>
         <Dialog open={openAddDialog} onOpenChange={setAddOpenDialog}>
           <DialogTrigger asChild>
-            <Button className="cursor-pointer">Thêm User</Button>
+            <Button className="cursor-pointer">Thêm người dùng</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
@@ -143,7 +149,7 @@ const UserPage = () => {
           }}
         >
           <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Lọc danh sách theo Role" />
+            <SelectValue placeholder="Lọc danh sách theo chức vụ" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Tất cả</SelectItem>
@@ -157,11 +163,11 @@ const UserPage = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="text-center">Avatar</TableHead>
-              <TableHead>Name</TableHead>
+              <TableHead className="text-center">Ảnh đại diện</TableHead>
+              <TableHead>Tên</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead className="text-center">Total Coin</TableHead>
-              <TableHead className="text-center">Action</TableHead>
+              <TableHead className="text-center">Tổng xu</TableHead>
+              <TableHead className="text-center">Hành động</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

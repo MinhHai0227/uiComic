@@ -13,10 +13,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import moment from "moment";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { editChapterApi } from "@/services/chapter-service";
+import utc from "dayjs/plugin/utc";
+import dayjs from "dayjs";
+dayjs.extend(utc);
 
 type EditChapterProps = {
   chapter: ChapterAction;
@@ -72,7 +74,7 @@ const EditChapterForm = ({ chapter, onEditSuccess }: EditChapterProps) => {
               name="chapter_name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Chap</FormLabel>
+                  <FormLabel>Chương</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -85,7 +87,7 @@ const EditChapterForm = ({ chapter, onEditSuccess }: EditChapterProps) => {
               name="chapter_title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Chapter Title</FormLabel>
+                  <FormLabel>Mô tả chương</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -98,7 +100,7 @@ const EditChapterForm = ({ chapter, onEditSuccess }: EditChapterProps) => {
               name="price_xu"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Ptice Xu</FormLabel>
+                  <FormLabel>Giá mở khóa chương</FormLabel>
                   <FormControl>
                     <Input type="number" {...field} />
                   </FormControl>
@@ -111,19 +113,19 @@ const EditChapterForm = ({ chapter, onEditSuccess }: EditChapterProps) => {
               name="auto_unlock_time"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Auto Unlock</FormLabel>
+                  <FormLabel>Thời gian tự động mở khóa chương</FormLabel>
                   <FormControl>
                     <Input
                       type="datetime-local"
                       value={
                         field.value
-                          ? moment(field.value)
+                          ? dayjs(field.value)
                               .utcOffset(7)
                               .format("YYYY-MM-DDTHH:mm")
                           : ""
                       }
                       onChange={(e) => {
-                        const localDate = moment(e.target.value).toDate();
+                        const localDate = dayjs(e.target.value).toDate();
                         field.onChange(localDate);
                       }}
                     />

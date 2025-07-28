@@ -28,7 +28,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { getAllCategory } from "@/redux/slices/category-slice";
 import { getAllCountry } from "@/redux/slices/country-slice";
 import { deleteCountryApi } from "@/services/country-service";
 import { CountryAction } from "@/types/country-type";
@@ -77,8 +76,8 @@ const CountryPage = () => {
             <TableCaption>Danh sách đất nước của truyện tranh</TableCaption>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead className="text-center">Action</TableHead>
+                <TableHead>Tên</TableHead>
+                <TableHead className="text-center">Hành động</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

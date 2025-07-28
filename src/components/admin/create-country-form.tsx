@@ -48,7 +48,7 @@ const CreateCountryForm = () => {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>name</FormLabel>
+                <FormLabel>Tên quốc gia</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>

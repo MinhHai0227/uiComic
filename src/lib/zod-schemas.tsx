@@ -36,7 +36,28 @@ const userEditSchema = z.object({
 //category
 const categoryCreateSchema = z.object({
   name: z.string().min(1, "Name không được bỏ trống"),
-  slug: z.string().min(1, "Name không được bỏ trống"),
+  slug: z
+    .string()
+    .min(1, "Slug không được bỏ trống")
+    .regex(
+      /^[\p{L}\p{N}\s-]+$/u,
+      "tên url chỉ được chứa chữ, số, khoảng trắng và dấu gạch ngang"
+    )
+    .transform((val) => {
+      // 1. Loại bỏ dấu tiếng Việt
+      const noVietnamese = val
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "") // xóa dấu
+        .replace(/đ/g, "d")
+        .replace(/Đ/g, "D");
+
+      // 2. Xử lý slug: bỏ khoảng trắng đầu/cuối, thay khoảng trắng giữa = -, bỏ ký tự đặc biệt
+      return noVietnamese
+        .trim()
+        .replace(/\s+/g, "-") // đổi khoảng trắng giữa thành -
+        .replace(/[^a-zA-Z0-9-]/g, "") // xóa ký tự đặc biệt
+        .toLowerCase(); // lowercase toàn bộ
+    }),
   description: z.string().min(1, "Name không được bỏ trống"),
 });
 
@@ -55,7 +76,28 @@ const countryCreateSchema = z.object({
 const comicCreateSchema = z.object({
   title: z.string().min(1, "Title không được bỏ trống"),
   title_eng: z.string().optional(),
-  slug: z.string().min(1, "Slug không được bỏ trống"),
+  slug: z
+    .string()
+    .min(1, "Slug không được bỏ trống")
+    .regex(
+      /^[\p{L}\p{N}\s-]+$/u,
+      "tên url chỉ được chứa chữ, số, khoảng trắng và dấu gạch ngang"
+    )
+    .transform((val) => {
+      // 1. Loại bỏ dấu tiếng Việt
+      const noVietnamese = val
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "") // xóa dấu
+        .replace(/đ/g, "d")
+        .replace(/Đ/g, "D");
+
+      // 2. Xử lý slug: bỏ khoảng trắng đầu/cuối, thay khoảng trắng giữa = -, bỏ ký tự đặc biệt
+      return noVietnamese
+        .trim()
+        .replace(/\s+/g, "-") // đổi khoảng trắng giữa thành -
+        .replace(/[^a-zA-Z0-9-]/g, "") // xóa ký tự đặc biệt
+        .toLowerCase(); // lowercase toàn bộ
+    }),
   description: z.string().min(1, "Description không được bỏ trống"),
   author: z.string().min(1, "Author không được bỏ trống"),
   countryId: z.coerce.number().min(1, "Country không được bỏ trống"),
@@ -86,6 +128,78 @@ const chapterActionSchema = z.object({
     }),
 });
 
+//chapterImage
+const createImageSchema = z.object({
+  chapter_id: z.coerce.number().min(0, "Chapter_id không được bỏ trống"),
+  image: z
+    .array(
+      z
+        .instanceof(File)
+        .refine((file) => file.size > 0, { message: "File không được trống" })
+        .refine((file) => file.type.startsWith("image/"), {
+          message: "File phải là hình ảnh",
+        })
+    )
+    .min(1, "Phải có ít nhất 1 ảnh"),
+});
+
+//upload avatar
+const uploadAvatar = z.object({
+  file: z
+    .instanceof(File)
+    .refine((file) => file.size > 0, { message: "File không được trống" })
+    .refine((file) => file.type.startsWith("image/"), {
+      message: "File phải là hình ảnh",
+    }),
+});
+
+//momo
+const paymentSchema = z.object({
+  coin_id: z.coerce.number().min(0, "Vui lòng chọn gói xu"),
+});
+
+//comment
+const commentSchema = z.object({
+  comic_id: z.coerce.number().optional(),
+  chapter_id: z.coerce.number().optional(),
+  parent_id: z.coerce.number().optional(),
+  replyToId: z.coerce.number().optional(),
+  content: z.string().min(1, "Nhập nội dung để bình luận"),
+});
+
+//change passworh
+const ChangePasswordSchema = z
+  .object({
+    old_password: z.string().min(1, "Vui lòng nhập mật khẩu cũ"),
+    new_password: z.string().min(6, "Mật khẩu mới phải có ít nhất 6 ký tự"),
+    confirm_password: z.string().min(1, "Vui lòng xác nhận lại mật khẩu mới"),
+  })
+  .refine((data) => data.new_password !== data.old_password, {
+    message: "Mật khẩu mới không được trùng với mật khẩu cũ",
+    path: ["new_password"],
+  })
+  .refine((data) => data.new_password === data.confirm_password, {
+    message: "Mật khẩu xác nhận không khớp",
+    path: ["confirm_password"],
+  });
+
+const forgotPasswordSchema = z.object({
+  email: z
+    .string()
+    .min(1, "Email không được để trống")
+    .email("Email không đúng định dạng"),
+});
+
+const resetPasswordSchema = z
+  .object({
+    new_password: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự"),
+    confirm_password: z.string().min(1, "Vui lòng xác nhận lại mật khẩu mới"),
+  })
+  .refine((data) => data.new_password === data.confirm_password, {
+    message: "Mật khẩu xác nhận không khớp",
+    path: ["confirm_password"],
+  });
+
 export {
   loginSchema,
   registerSchema,
@@ -96,4 +210,11 @@ export {
   countryCreateSchema,
   comicCreateSchema,
   chapterActionSchema,
+  createImageSchema,
+  uploadAvatar,
+  paymentSchema,
+  commentSchema,
+  ChangePasswordSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
 };

@@ -49,6 +49,12 @@ const EditComicForm = ({ comic, onEditSuccess }: EditComicProps) => {
     },
   });
 
+  const nameValue = form.watch("title");
+  useEffect(() => {
+    const slug = nameValue;
+    form.setValue("slug", slug);
+  }, [nameValue, form]);
+
   const onSubmit = async (data: z.infer<typeof comicCreateSchema>) => {
     try {
       setIsLoading(true);
@@ -80,7 +86,7 @@ const EditComicForm = ({ comic, onEditSuccess }: EditComicProps) => {
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Title</FormLabel>
+                    <FormLabel>Tên truyện</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -93,7 +99,7 @@ const EditComicForm = ({ comic, onEditSuccess }: EditComicProps) => {
                 name="title_eng"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>English Title</FormLabel>
+                    <FormLabel>Tên khác</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -106,9 +112,8 @@ const EditComicForm = ({ comic, onEditSuccess }: EditComicProps) => {
                 name="slug"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Slug</FormLabel>
                     <FormControl>
-                      <Input disabled {...field} />
+                      <Input hidden {...field} value={nameValue} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -119,7 +124,7 @@ const EditComicForm = ({ comic, onEditSuccess }: EditComicProps) => {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description</FormLabel>
+                    <FormLabel>Mô tả</FormLabel>
                     <FormControl>
                       <Textarea {...field} />
                     </FormControl>
@@ -132,7 +137,7 @@ const EditComicForm = ({ comic, onEditSuccess }: EditComicProps) => {
                 name="author"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Author</FormLabel>
+                    <FormLabel>Tác giả</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -147,7 +152,7 @@ const EditComicForm = ({ comic, onEditSuccess }: EditComicProps) => {
                 name="countryId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Country</FormLabel>
+                    <FormLabel>Quốc gia</FormLabel>
                     <FormControl>
                       <RadioGroup onValueChange={field.onChange}>
                         <div className="grid grid-cols-2 gap-2">
@@ -178,7 +183,7 @@ const EditComicForm = ({ comic, onEditSuccess }: EditComicProps) => {
                 name="categoryId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Category</FormLabel>
+                    <FormLabel>Thể loại</FormLabel>
                     <FormDescription>
                       Chọn các thể loại của truyện tranh.
                     </FormDescription>
@@ -234,7 +239,7 @@ const EditComicForm = ({ comic, onEditSuccess }: EditComicProps) => {
                 name="file"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Cover Image</FormLabel>
+                    <FormLabel>Ảnh đại diện</FormLabel>
                     <FormControl>
                       <Input
                         type="file"

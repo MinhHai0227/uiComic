@@ -8,3 +8,8 @@ export interface registerType {
   email: string;
   password: string;
 }
+
+export interface ChangePasswordResponse {
+  message: string;
+  id: number;
+}

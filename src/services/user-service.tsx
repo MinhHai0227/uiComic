@@ -1,5 +1,6 @@
 import axios from "@/lib/axios";
 import {
+  User,
   UserCreate,
   UserEdit,
   userParams,
@@ -26,4 +27,25 @@ const editUserApi = async (id: number, data: Omit<UserEdit, "id">) => {
   return axios.patch(`user/${id}`, data);
 };
 
-export { getAllUserApi, deleteUserApi, createUserApi, editUserApi };
+const getUserProfileApi = async (): Promise<User> => {
+  return await axios.get("user/profile");
+};
+
+const uploadAvatarApi = async ( file: File) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  return await axios.post("user/upload", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+
+export {
+  getAllUserApi,
+  deleteUserApi,
+  createUserApi,
+  editUserApi,
+  getUserProfileApi,
+  uploadAvatarApi,
+};

@@ -10,3 +10,16 @@ export interface CoinAction {
   coin_amount: number;
   price: number;
 }
+
+//payment response
+export interface PaymentResponse {
+  amount: number;
+  message: string;
+  orderId: string;
+  partnerCode: string;
+  payUrl: string;
+  requestId: string;
+  responseTime: number;
+  resultCode: number;
+  shortLink: string;
+}

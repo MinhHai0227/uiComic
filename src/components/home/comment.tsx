@@ -1,0 +1,233 @@
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import {
+  getAllCommentByComicId,
+  getAllCommentByChapterId,
+} from "@/redux/slices/comment-slice";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { MessageCircleMoreIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import CommentForm from "@/components/home/comment-form";
+import { deleteCommentApi } from "@/services/comment-service";
+
+interface CommentsProps {
+  comicId: number | undefined;
+  chapterId?: number | undefined;
+}
+
+const Comments = ({ comicId, chapterId }: CommentsProps) => {
+  const dispatch = useAppDispatch();
+  const { data, totalComment, loading } = useAppSelector(
+    (state) => state.comment
+  );
+  const currentUser = useAppSelector((state) => state.auth.user);
+  const [replyingTo, setReplyingTo] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!comicId && !chapterId) return;
+
+    const fetchComments = () => {
+      if (chapterId) {
+        dispatch(getAllCommentByChapterId(chapterId));
+      } else if (comicId) {
+        dispatch(getAllCommentByComicId(comicId));
+      }
+    };
+
+    fetchComments();
+  }, [comicId, chapterId, dispatch]);
+
+  const postCommentSuccess = () => {
+    if (chapterId) {
+      dispatch(getAllCommentByChapterId(chapterId));
+    } else if (comicId) {
+      dispatch(getAllCommentByComicId(comicId));
+    }
+    setReplyingTo(null);
+  };
+
+  const handleReply = (commentId: number) => {
+    setReplyingTo((prev) => (prev === commentId ? null : commentId));
+  };
+
+  const handleDelete = async (commentId: number) => {
+    try {
+      setIsLoading(true);
+      await deleteCommentApi(commentId);
+      if (chapterId) {
+        dispatch(getAllCommentByChapterId(chapterId));
+      } else if (comicId) {
+        dispatch(getAllCommentByComicId(comicId));
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="py-6 px-4 sm:px-6 bg-gradient-to-b from-background to-gray-50 rounded-2xl shadow-lg">
+      {/* Tiêu đề bình luận */}
+      <div className="flex items-center gap-3 mb-4">
+        <MessageCircleMoreIcon className="size-7 text-primary" />
+        <h2 className="text-xl font-bold text-foreground">
+          Bình luận
+          <span className="ml-2 text-base bg-primary/10 text-primary px-2 py-1 rounded-full">
+            {totalComment}
+          </span>
+        </h2>
+      </div>
+
+      {/* Thông báo khuyến khích */}
+      <p className="text-sm text-muted-foreground mb-6">
+        Vào{" "}
+        <a href="#" className="font-medium text-primary hover:underline">
+          Fanpage
+        </a>{" "}
+        like và theo dõi để ủng hộ TruyenDocViet nhé.
+      </p>
+
+      {/* Form bình luận */}
+      <CommentForm
+        comicId={comicId}
+        chapterId={chapterId}
+        onSubmitSuccess={postCommentSuccess}
+      />
+
+      {/* Trạng thái tải hoặc không có bình luận */}
+      {loading ? (
+        <p className="text-sm text-muted-foreground italic text-center">
+          Đang tải bình luận...
+        </p>
+      ) : data.length === 0 ? (
+        <p className="text-sm text-muted-foreground text-center">
+          Chưa có bình luận nào. Hãy là người đầu tiên!
+        </p>
+      ) : (
+        <div className="space-y-4">
+          {data.map((comment) => (
+            <div
+              key={comment.id}
+              className="bg-card p-4 rounded-xl shadow-sm border border-gray-100 transition-all hover:shadow-md"
+            >
+              <div className="flex gap-3">
+                <Avatar className="w-10 h-10">
+                  <AvatarImage src={comment.user.avatar ?? ""} />
+                  <AvatarFallback className="bg-primary/10 text-primary">
+                    {comment.user.username[0]?.toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <p className="font-semibold text-foreground">
+                      {comment.user.username}
+                    </p>
+                    <div className="text-sm flex gap-4 text-muted-foreground">
+                      {comment.userId === currentUser?.id && (
+                        <button
+                          onClick={() => handleDelete(comment.id)}
+                          disabled={isLoading}
+                          className="hover:text-red-500 transition-colors disabled:opacity-50"
+                        >
+                          Xóa
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleReply(comment.id)}
+                        className="text-blue-500 hover:text-blue-600 font-medium transition-colors"
+                      >
+                        {replyingTo === comment.id ? "Hủy" : "Trả lời"}
+                      </button>
+                    </div>
+                  </div>
+
+                  <p className="text-sm text-foreground mt-1 leading-relaxed">
+                    {comment.content}
+                  </p>
+
+                  {/* Form trả lời */}
+                  {replyingTo === comment.id && (
+                    <div className="mt-4 animate-in fade-in duration-300">
+                      <CommentForm
+                        comicId={comicId}
+                        chapterId={chapterId}
+                        parentId={comment.id}
+                        replyToId={comment.replyToId ?? undefined}
+                        onSubmitSuccess={postCommentSuccess}
+                      />
+                    </div>
+                  )}
+
+                  {/* Danh sách bình luận con */}
+                  {comment.replies.length > 0 && (
+                    <div className="mt-4 space-y-3">
+                      {comment.replies.map((reply) => (
+                        <div key={reply.id} className="flex items-start gap-3">
+                          <Avatar className="w-8 h-8">
+                            <AvatarImage src={reply.user.avatar ?? ""} />
+                            <AvatarFallback className="bg-primary/10 text-primary">
+                              {reply.user.username[0]?.toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <p className="text-sm font-semibold text-foreground">
+                                {reply.user.username}
+                              </p>
+                              <div className="text-xs flex gap-3 text-muted-foreground">
+                                {reply.user.id === currentUser?.id && (
+                                  <button
+                                    onClick={() => handleDelete(reply.id)}
+                                    disabled={isLoading}
+                                    className="hover:text-red-500 transition-colors disabled:opacity-50"
+                                  >
+                                    Xóa
+                                  </button>
+                                )}
+                                <button
+                                  onClick={() => handleReply(reply.id)}
+                                  className="text-blue-500 hover:text-blue-600 font-medium transition-colors"
+                                >
+                                  {replyingTo === reply.id ? "Hủy" : "Trả lời"}
+                                </button>
+                              </div>
+                            </div>
+
+                            <p className="text-sm text-foreground mt-1 leading-relaxed">
+                              <span className="font-semibold text-blue-500 mr-1">
+                                @
+                                {reply.replyTo?.user?.username ??
+                                  comment.user.username}
+                              </span>
+
+                              {reply.content}
+                            </p>
+
+                            {replyingTo === reply.id && (
+                              <div className="mt-3 animate-in fade-in duration-300">
+                                <CommentForm
+                                  comicId={comicId}
+                                  chapterId={chapterId}
+                                  parentId={comment.id}
+                                  replyToId={reply.id}
+                                  onSubmitSuccess={postCommentSuccess}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Comments;

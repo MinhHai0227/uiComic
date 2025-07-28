@@ -77,10 +77,10 @@ const CategoryPage = () => {
             <TableCaption>Danh sách thể loại của truyện tranh</TableCaption>
             <TableHeader>
               <TableRow>
-                <TableHead className="text-center">Name</TableHead>
-                <TableHead className="text-center">slug</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead className="text-center">Action</TableHead>
+                <TableHead>Tên</TableHead>
+                <TableHead>tên url</TableHead>
+                <TableHead>Mô tả</TableHead>
+                <TableHead className="text-center">Hành động</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -115,6 +115,7 @@ const CategoryPage = () => {
                             name: category.name,
                             slug: category.slug,
                             description: category.description,
+                            comics: [],
                           });
                         }}
                       >
