@@ -18,10 +18,11 @@ import { logoutApi } from "@/services/auth-service";
 import { logout } from "@/redux/slices/auth-slice";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { getAllCategory } from "@/redux/slices/category-slice";
-import { Bell, ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { getUserProfile } from "@/redux/slices/user-slice";
 import { debounce } from "lodash";
 import { searchComic } from "@/redux/slices/search-slice";
+import ReplyNotification from "@/components/home/reply-notification";
 
 type CategoryKey = "category1" | "category2" | "category3";
 type RatingType = {
@@ -49,7 +50,7 @@ const Header = () => {
   const { loading, data } = useAppSelector((state) => state.category);
   const isLogin = useAppSelector((state) => state.auth.user !== null);
   const user = useAppSelector((state) => state.user.userProfile);
-  const { unseenCount } = useAppSelector((state) => state.notification);
+  const [open, setOpen] = useState(false);
 
   const handlLogout = async () => {
     const res = await logoutApi();
@@ -211,48 +212,9 @@ const Header = () => {
 
           {isLogin ? (
             <ul className="flex gap-2  items-center justify-between">
+              <li>{user && <ReplyNotification userId={user.id} />}</li>
               <li>
-                <DropdownMenu>
-                  <DropdownMenuTrigger
-                    asChild
-                    className="cursor-pointer relative"
-                  >
-                    <div>
-                      <Bell className="size-6 text-primary" />
-                      {unseenCount > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
-                          {unseenCount}
-                        </span>
-                      )}
-                    </div>
-                  </DropdownMenuTrigger>
-
-                  <DropdownMenuContent className="w-96 p-2">
-                    <DropdownMenuLabel className="text-base font-bold">
-                      Thông báo
-                    </DropdownMenuLabel>
-
-                    <DropdownMenuSeparator />
-                    <div className="max-h-80 overflow-y-auto space-y-2 px-1 py-2">
-                      <div className="text-center text-sm text-muted-foreground py-4">
-                        Không có thông báo
-                      </div>
-                    </div>
-                    <DropdownMenuSeparator />
-
-                    <div className="flex justify-between px-1 py-1 text-sm">
-                      <button className="text-primary hover:underline">
-                        Xem tất cả
-                      </button>
-                      <button className="text-muted-foreground hover:underline">
-                        Đánh dấu đã đọc
-                      </button>
-                    </div>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </li>
-              <li>
-                <DropdownMenu>
+                <DropdownMenu open={open} onOpenChange={setOpen}>
                   <DropdownMenuTrigger asChild>
                     <Avatar className="cursor-pointer">
                       <AvatarImage src={user?.avatar ?? ""} alt="avatar" />
@@ -269,7 +231,12 @@ const Header = () => {
                       <DropdownMenuItem>Danh sách theo dõi</DropdownMenuItem>
                       <DropdownMenuItem>Lịch sử đọc truyện</DropdownMenuItem>
                       <DropdownMenuItem>
-                        <Link to="/passport/quan-ly-tai-khoan">
+                        <Link
+                          onClick={() => {
+                            setOpen(false);
+                          }}
+                          to="/passport/quan-ly-tai-khoan"
+                        >
                           Cài đặt thông tin
                         </Link>
                       </DropdownMenuItem>

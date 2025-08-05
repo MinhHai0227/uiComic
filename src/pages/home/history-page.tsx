@@ -52,7 +52,21 @@ const HistoryPage = () => {
       dispatch(getAllComicHistory({ page, limit: 36 }));
     }
   }, [dispatch, page]);
-  console.log(comics);
+  if (!isLogin) {
+    return (
+      <div className="bg-gray-200 dark:bg-background min-h-[50vh]">
+        <Container>
+          <div className="flex gap-2 text-sky-400 text-2xl items-center p-3 pt-5">
+            <Flag />
+            <p>Truyện Đang Theo Dõi</p>
+          </div>
+          <p className="text-center text-lg font-medium text-gray-600 py-20">
+            Vui lòng đăng nhập để xem truyện đang theo dõi.
+          </p>
+        </Container>
+      </div>
+    );
+  }
   return (
     <div className="bg-gray-200 dark:bg-background pb-2">
       <Container>

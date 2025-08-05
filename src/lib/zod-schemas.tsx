@@ -23,25 +23,25 @@ const userCreateSchema = z.object({
   username: z.string().optional(),
   email: z.string().email("Email không hợp lệ"),
   password: z.string().min(6, "Mật khẩu ít nhất  6 kí tự"),
-  role: z.string().min(1, "Role không được để trống"),
+  role: z.string().min(1, "Chức vụ không được để trống"),
 });
 
 const userEditSchema = z.object({
   username: z.string().optional(),
   email: z.string().email("Email không hợp lệ"),
   total_coin: z.coerce.number().min(0, "Total Coin phải là số dương"),
-  role: z.string().min(1, "Role không được để trống"),
+  role: z.string().min(1, "Chức vụ không được để trống"),
 });
 
 //category
 const categoryCreateSchema = z.object({
-  name: z.string().min(1, "Name không được bỏ trống"),
+  name: z.string().min(1, "Tên thể loại không được bỏ trống"),
   slug: z
     .string()
     .min(1, "Slug không được bỏ trống")
     .regex(
-      /^[\p{L}\p{N}\s-]+$/u,
-      "tên url chỉ được chứa chữ, số, khoảng trắng và dấu gạch ngang"
+      /^[\p{L}\p{N}\s]+$/u,
+      "Tên thể loại chỉ được chứa chữ, số, khoảng trắng"
     )
     .transform((val) => {
       // 1. Loại bỏ dấu tiếng Việt
@@ -58,30 +58,30 @@ const categoryCreateSchema = z.object({
         .replace(/[^a-zA-Z0-9-]/g, "") // xóa ký tự đặc biệt
         .toLowerCase(); // lowercase toàn bộ
     }),
-  description: z.string().min(1, "Name không được bỏ trống"),
+  description: z.string().min(1, "Mô tả không được bỏ trống"),
 });
 
 //coin
 const coinCreateCoinSchema = z.object({
-  price: z.coerce.number().min(10000, "Price phải trên 9.999 VND"),
-  coin_amount: z.coerce.number().min(0, "Coin phải là số dương"),
+  price: z.coerce.number().min(10000, "Giá xu phải trên 9.999 VND"),
+  coin_amount: z.coerce.number().min(0, "Xu phải là số dương"),
 });
 
 //country
 const countryCreateSchema = z.object({
-  name: z.string().min(1, "Name không được bỏ trống"),
+  name: z.string().min(1, "Tên quốc gia không được bỏ trống"),
 });
 
 //comic
 const comicCreateSchema = z.object({
-  title: z.string().min(1, "Title không được bỏ trống"),
+  title: z.string().min(1, "Tên truyện không được bỏ trống"),
   title_eng: z.string().optional(),
   slug: z
     .string()
     .min(1, "Slug không được bỏ trống")
     .regex(
-      /^[\p{L}\p{N}\s-]+$/u,
-      "tên url chỉ được chứa chữ, số, khoảng trắng và dấu gạch ngang"
+      /^[\p{L}\p{N}\s]+$/u,
+      "Tên truyện chỉ được chứa chữ, số, khoảng trắng"
     )
     .transform((val) => {
       // 1. Loại bỏ dấu tiếng Việt
@@ -98,15 +98,15 @@ const comicCreateSchema = z.object({
         .replace(/[^a-zA-Z0-9-]/g, "") // xóa ký tự đặc biệt
         .toLowerCase(); // lowercase toàn bộ
     }),
-  description: z.string().min(1, "Description không được bỏ trống"),
-  author: z.string().min(1, "Author không được bỏ trống"),
-  countryId: z.coerce.number().min(1, "Country không được bỏ trống"),
+  description: z.string().min(1, "Mô tả truyện không được bỏ trống"),
+  author: z.string().min(1, "Tác giả không được bỏ trống"),
+  countryId: z.coerce.number().min(1, "Quốc gia không được bỏ trống"),
   categoryId: z
     .array(z.coerce.number())
     .nonempty("Vui lòng chọn ít nhất một thể loại"),
   file: z
     .instanceof(File)
-    .refine((file) => file.size > 0, { message: "File không được trống" })
+    .refine((file) => file.size > 0, { message: "File hình không được trống" })
     .refine((file) => file.type.startsWith("image/"), {
       message: "File phải là hình ảnh",
     }),
@@ -115,9 +115,9 @@ const comicCreateSchema = z.object({
 //chapter
 const chapterActionSchema = z.object({
   comic_id: z.coerce.number().min(0, "ComicId không được bỏ trống"),
-  chapter_name: z.string().min(1, "Chapter name không được bỏ trống"),
+  chapter_name: z.string().min(1, "Tên chương không được bỏ trống"),
   chapter_title: z.string().optional(),
-  price_xu: z.coerce.number().min(0, "Price xu không được bỏ trống"),
+  price_xu: z.coerce.number().min(0, "Giá xu không phải là số âm"),
   auto_unlock_time: z.coerce
     .date()
     .refine((date) => !isNaN(date.getTime()), {
@@ -135,7 +135,9 @@ const createImageSchema = z.object({
     .array(
       z
         .instanceof(File)
-        .refine((file) => file.size > 0, { message: "File không được trống" })
+        .refine((file) => file.size > 0, {
+          message: "File hình không được trống",
+        })
         .refine((file) => file.type.startsWith("image/"), {
           message: "File phải là hình ảnh",
         })
@@ -147,7 +149,7 @@ const createImageSchema = z.object({
 const uploadAvatar = z.object({
   file: z
     .instanceof(File)
-    .refine((file) => file.size > 0, { message: "File không được trống" })
+    .refine((file) => file.size > 0, { message: "File hình không được trống" })
     .refine((file) => file.type.startsWith("image/"), {
       message: "File phải là hình ảnh",
     }),

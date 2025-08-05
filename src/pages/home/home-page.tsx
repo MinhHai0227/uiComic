@@ -20,7 +20,7 @@ const HomePage = () => {
   const { nextPage, prevPage, totalPage, currentPage } = useAppSelector(
     (state) => state.comic
   );
-
+  // const user = useAppSelector((state) => state.auth.user?.id);
   useEffect(() => {
     dispatch(getAllComic({ page, limit: 36 }));
   }, [dispatch]);
@@ -36,6 +36,8 @@ const HomePage = () => {
   return (
     <div className="bg-gray-200 dark:bg-background pb-2">
       <Container>
+        {/* {user && <NotificationPage userId={user} />} */}
+
         <div className="flex flex-col-reverse sm:flex-row">
           <div className="w-full">
             <span className="flex text-sky-400 text-lg items-center gap-2 py-3">
@@ -141,6 +143,7 @@ const HomePage = () => {
             </Tabs>
           </div>
         </div>
+
         <div className="my-2">
           <PaginationComponent
             onPageChange={setPage}

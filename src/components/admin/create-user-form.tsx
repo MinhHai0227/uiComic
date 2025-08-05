@@ -41,99 +41,123 @@ const CreateUserForm = ({ onSuccess }: { onSuccess: () => void }) => {
   };
 
   return (
-    <>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="flex flex-col gap-6">
-            <FormField
-              control={form.control}
-              name="username"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tên</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input placeholder="m@example.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Mật khẩu</FormLabel>
-                  <FormControl>
-                    <Input type="password" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="role"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Chức vụ</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      className="flex space-x-1 mt-2"
-                    >
-                      <FormItem className="flex items-center space-x-3 space-y-0">
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <div className="flex flex-col gap-5">
+          <FormField
+            control={form.control}
+            name="username"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-semibold text-gray-700">
+                  Tên người dùng
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    className="rounded-lg border-gray-300 focus:ring-primary focus:border-primary"
+                    placeholder="Nhập tên người dùng"
+                  />
+                </FormControl>
+                <FormMessage className="text-xs text-red-500" />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-semibold text-gray-700">
+                  Email
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type="text"
+                    className="rounded-lg border-gray-300 focus:ring-primary focus:border-primary"
+                    placeholder="m@example.com"
+                  />
+                </FormControl>
+                <FormMessage className="text-xs text-red-500" />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-semibold text-gray-700">
+                  Mật khẩu
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type="password"
+                    className="rounded-lg border-gray-300 focus:ring-primary focus:border-primary"
+                    placeholder="Nhập mật khẩu"
+                  />
+                </FormControl>
+                <FormMessage className="text-xs text-red-500" />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="role"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-semibold text-gray-700">
+                  Chức vụ
+                </FormLabel>
+                <FormControl>
+                  <RadioGroup
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2"
+                  >
+                    {["user", "editor", "admin"].map((role) => (
+                      <FormItem key={role} className="flex items-center gap-2">
                         <FormControl>
-                          <RadioGroupItem value="user" />
+                          <RadioGroupItem
+                            value={role}
+                            className="text-primary"
+                          />
                         </FormControl>
-                        <FormLabel>User</FormLabel>
+                        <FormLabel className="text-sm text-gray-600 font-normal">
+                          {role.charAt(0).toUpperCase() + role.slice(1)}
+                        </FormLabel>
                       </FormItem>
-                      <FormItem className="flex items-center space-x-3 space-y-0">
-                        <FormControl>
-                          <RadioGroupItem value="editor" />
-                        </FormControl>
-                        <FormLabel>Editor</FormLabel>
-                      </FormItem>
-                      <FormItem className="flex items-center space-x-3 space-y-0">
-                        <FormControl>
-                          <RadioGroupItem value="admin" />
-                        </FormControl>
-                        <FormLabel>Admin</FormLabel>
-                      </FormItem>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <div className="flex justify-end mt-6">
-            <Button
-              className="cursor-pointer"
-              disabled={isLoading}
-              type="submit"
-            >
-              {isLoading && <Loader2 className="mr-1 h-4 w-4 animate-spin" />}
-              Thêm
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </>
+                    ))}
+                  </RadioGroup>
+                </FormControl>
+                <FormMessage className="text-xs text-red-500" />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="mt-8 flex justify-end gap-3">
+          <Button
+            variant="outline"
+            type="button"
+            onClick={() => form.reset()}
+            className="text-gray-600 border-gray-300 hover:bg-gray-100"
+          >
+            Xóa form
+          </Button>
+          <Button
+            disabled={isLoading}
+            type="submit"
+            className="bg-primary hover:bg-primary/90 text-white font-semibold rounded-full px-6 flex items-center gap-2"
+          >
+            {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+            Thêm tài khoản
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 };
+
 export default CreateUserForm;

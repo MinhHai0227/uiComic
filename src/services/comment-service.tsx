@@ -1,16 +1,26 @@
 import axios from "@/lib/axios";
-import { addComment, CommentResponse } from "@/types/comment-type";
+import {
+  addComment,
+  commentParams,
+  CommentResponse,
+} from "@/types/comment-type";
 
 const getAllComemntByComicIdApi = async (
-  id: number
+  id: number,
+  params: commentParams
 ): Promise<CommentResponse> => {
-  return await axios.get(`comment/comic/${id}`);
+  return await axios.get(`comment/comic/${id}`, {
+    params,
+  });
 };
 
 const getAllCommentByChapterIdApi = async (
-  id: number
+  id: number,
+  params: commentParams
 ): Promise<CommentResponse> => {
-  return await axios.get(`comment/chapter/${id}`);
+  return await axios.get(`comment/chapter/${id}`, {
+    params,
+  });
 };
 
 const createComment = async (data: addComment) => {

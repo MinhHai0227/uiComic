@@ -1,3 +1,6 @@
+import {
+  saveReadChapter,
+} from "@/components/home/reading-history";
 import { useAppSelector } from "@/redux/hooks";
 import { checkManyUserUnlockChapterApi } from "@/services/chapter-action-service";
 import { createComicHistoryApi } from "@/services/comic-history-service";
@@ -9,6 +12,7 @@ import { Link } from "react-router-dom";
 
 type ListChapterProps = {
   chapters: ChapterSlug[];
+  chapterHistory: number[];
   comicId: number;
 };
 
@@ -16,14 +20,24 @@ type UnlockStatus = {
   [id: number]: boolean;
 };
 
-const ListChapter = ({ chapters, comicId }: ListChapterProps) => {
+const ListChapter = ({
+  chapters,
+  comicId,
+  chapterHistory,
+}: ListChapterProps) => {
   const isLogin = useAppSelector((state) => state.auth.user !== null);
   const [unlockStatus, setUnlockStatus] = useState<UnlockStatus>({});
   const [isLoading, setIsLoading] = useState(true);
-  const handleOnCreateHistory = async (comicId: number, chapterId: number) => {
+
+  const handleOnCreateHistory = async (
+    comicId: number,
+    chapterId: number,
+    chapterUrl: string
+  ) => {
     if (isLogin) {
       await createComicHistoryApi(comicId, chapterId);
     }
+    saveReadChapter(comicId, chapterId, chapterUrl);
   };
 
   useEffect(() => {
@@ -71,9 +85,15 @@ const ListChapter = ({ chapters, comicId }: ListChapterProps) => {
               to={`/truyen-tranh/${chapter.slug}`}
               key={chapter.id}
               onClick={() => {
-                handleOnCreateHistory(comicId, chapter.id);
+                handleOnCreateHistory(comicId, chapter.id, chapter.slug);
               }}
-              className="border-b border-gray-200 pb-0.5 flex justify-between hover:text-primary duration-200"
+              className={`border-b border-gray-200 pb-0.5 flex justify-between duration-200
+    ${
+      chapterHistory.includes(chapter.id)
+        ? "text-green-600 font-semibold"
+        : "hover:text-primary"
+    }
+  `}
             >
               <div className="flex items-center">
                 <p className="w-24">Chương {chapter.chapter_name}</p>

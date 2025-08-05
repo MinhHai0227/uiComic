@@ -55,11 +55,7 @@ const initialState: Categorystate = {
 export const CategorySlice = createSlice({
   name: "category",
   initialState,
-  reducers: {
-    resetCategorySlug: (state) => {
-      state.categorySlug = null;
-    },
-  },
+  reducers: {},
 
   extraReducers: (builder) => {
     builder
@@ -79,5 +75,4 @@ export const CategorySlice = createSlice({
       });
   },
 });
-export const { resetCategorySlug } = CategorySlice.actions;
 export default CategorySlice.reducer;

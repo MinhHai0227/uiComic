@@ -52,3 +52,8 @@ export interface addComment {
   replyToId: number | undefined;
   content: string;
 }
+
+export interface commentParams {
+  page: number;
+  limit: number;
+}

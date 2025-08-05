@@ -40,7 +40,7 @@ const AdminPage = () => {
   }
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6 bg-gray-50">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
         {/* Daily Revenue Card */}
         <Card className="col-span-1 bg-white shadow-lg hover:shadow-xl transition-shadow duration-300">

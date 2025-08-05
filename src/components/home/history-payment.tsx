@@ -30,7 +30,6 @@ const HistoryPayment = () => {
   const [page, setPage] = useState(1);
   const { data, loading, currentPage, nextPage, prevPage, totalPage } =
     useAppSelector((state) => state.notification);
-
   const [selectedIdNotifi, setSelectedIdNotifi] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [openDeleteDialog, setDeleteOpenDialog] = useState(false);

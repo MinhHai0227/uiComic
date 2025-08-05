@@ -43,3 +43,14 @@ export interface ReadingHistoryResponse {
   prevPage: number;
   nextPage: number;
 }
+//local history
+export interface LastRead {
+  chapterId: number;
+  chapterUrl: string;
+}
+
+export interface ReadingHistoryItem {
+  id: number;
+  chapterIds: number[];
+  lastRead: LastRead;
+}

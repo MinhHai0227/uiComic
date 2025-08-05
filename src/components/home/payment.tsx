@@ -95,7 +95,7 @@ const Payment = () => {
               : "text-gray-600 dark:text-gray-300"
           }`}
                     >
-                      <p>{coin.price}</p>
+                      <p>{coin.coin_amount}</p>
                       <Coins
                         className={`size-5 ${
                           isSelected ? "text-primary" : "text-primary"

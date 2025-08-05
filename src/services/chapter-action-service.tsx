@@ -36,10 +36,17 @@ const unlockChapterApi = async (id: number) => {
   return await axios.post(`chapterunlock/${id}`);
 };
 
+const unlockManyChapterApi = async (chapterId: number[]) => {
+  return await axios.post("chapterunlock/unlock/unlock-many", {
+    chapterId,
+  });
+};
+
 export {
   deleteAllChapterImageApi,
   uploadImagesApi,
   checkUserUnloclChapterApi,
   unlockChapterApi,
   checkManyUserUnlockChapterApi,
+  unlockManyChapterApi,
 };

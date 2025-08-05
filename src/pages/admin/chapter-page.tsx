@@ -172,7 +172,7 @@ const ChapterPage = () => {
               data.map((chapter) => (
                 <TableRow key={chapter.id}>
                   <TableCell className="text-center align-middle font-medium">
-                    Chap {chapter.chapter_name}
+                    Chương {chapter.chapter_name}
                   </TableCell>
                   <TableCell className="align-middle text-sm">
                     {chapter.chapter_title || (

@@ -24,7 +24,6 @@ interface NotificationState extends NotificationPaginationResponse {
 
 const initialState: NotificationState = {
   data: [],
-  unseenCount: 0,
   totalItem: 0,
   totalPage: 0,
   totalItemPerPage: 0,

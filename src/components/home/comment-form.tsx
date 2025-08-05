@@ -42,7 +42,6 @@ const CommentForm = ({
       content: "",
     },
   });
-
   const onSubmit = async (data: z.infer<typeof commentSchema>) => {
     try {
       setIsLoading(true);

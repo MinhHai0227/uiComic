@@ -5,7 +5,7 @@ import HomeLayout from "@/layouts/home-layout";
 import AuthPage from "@/pages/home/auth-page";
 import HomePage from "@/pages/home/home-page";
 import { ToastContainer, Zoom } from "react-toastify";
-import { Route, Router, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import { getProfileApi } from "@/services/auth-service";
@@ -40,6 +40,8 @@ import FollowerPage from "@/pages/home/follower-page";
 import SearchPage from "@/pages/home/search-page";
 import ForgotPassword from "@/components/home/forgot-password";
 import ResetPassword from "@/components/home/reset-password";
+import NotFound from "@/pages/home/notfound-page";
+import ThankYouPayment from "@/pages/home/thank-payment-page";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -128,6 +130,7 @@ const App = () => {
               <Route path="doi-mat-khau" element={<ChangePassword />} />
             </Route>
           </Route>
+          <Route path="payment-success" element={<ThankYouPayment />} />
         </Route>
 
         {/* admin route */}
@@ -145,6 +148,9 @@ const App = () => {
             </Route>
           </Route>
         </Route>
+
+        {/* not found */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </ThemeProvider>
   );

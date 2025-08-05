@@ -1,6 +1,7 @@
 import Container from "@/components/container";
 import Comments from "@/components/home/comment";
 import ListChapter from "@/components/home/list-chapter";
+import { getReadChapters } from "@/components/home/reading-history";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,13 +11,23 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { getComicBySlug } from "@/redux/slices/comic-slice";
+import { unlockManyChapterApi } from "@/services/chapter-action-service";
 import {
   checkUserFollowerComicApi,
   followerComicApi,
   unFollowerComicApi,
 } from "@/services/comic-follower-service";
+import { ReadingHistoryItem } from "@/types/history-type";
 import {
   Book,
   ChartArea,
@@ -31,6 +42,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const ComicDetail = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -40,13 +52,26 @@ const ComicDetail = () => {
   const comic = useAppSelector((state) => state.comic.comicSlug);
   const chapterSlugOne = comic?.chapters?.[comic.chapters.length - 1];
   const isLogin = useAppSelector((state) => state.auth.user !== null);
+  const [readChapters, setReadChapters] = useState<ReadingHistoryItem>();
+  const user = useAppSelector((state) => state.user.userProfile);
+  const [selectedChapters, setSelectedChapters] = useState<number[]>([]);
+  const [open, setOpen] = useState(false);
+  const chapterNoUnlock = comic?.chapters.filter(
+    (chapter) => chapter.is_locked === true
+  );
+  const totalCoinToPay = chapterNoUnlock
+    ?.filter((chapter) => selectedChapters.includes(chapter.id))
+    .reduce((sum, chapter) => sum + (chapter.price_xu || 0), 0);
 
   useEffect(() => {
     const checkUserFollowerComic = async () => {
-      if (isLogin && comic?.id) {
-        const res = await checkUserFollowerComicApi(comic.id);
-        setUserFollower(res);
-        return res;
+      if (comic?.id) {
+        setReadChapters(getReadChapters(comic?.id));
+        if (isLogin) {
+          const res = await checkUserFollowerComicApi(comic.id);
+          setUserFollower(res);
+          return res;
+        }
       }
     };
     checkUserFollowerComic();
@@ -57,6 +82,21 @@ const ComicDetail = () => {
       dispatch(getComicBySlug(slug));
     }
   }, [dispatch, slug]);
+
+  const handleUnloclManyChapter = async () => {
+    try {
+      setIsLoading(true);
+      await unlockManyChapterApi(selectedChapters);
+      if (slug) {
+        dispatch(getComicBySlug(slug));
+      }
+      setSelectedChapters([]);
+      setOpen(false);
+      toast.success("Mở chương thành công");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleOnFollowerComic = async (id: number) => {
     try {
@@ -196,19 +236,30 @@ const ComicDetail = () => {
                     </Button>
                   )
                 ) : (
-                  "chwa dn"
+                  <Button
+                    disabled={isLoading}
+                    onClick={() => {
+                      toast.error("Vui lòng đăng nhập");
+                    }}
+                    className="text-white bg-red-600 hover:bg-red-500 cursor-pointer"
+                  >
+                    <Heart className="size-4" />
+                    <p>Theo dõi</p>
+                  </Button>
                 )}
                 <Button className="text-white  bg-purple-600 hover:bg-purple-500 cursor-pointer">
                   <ThumbsUp className="size-4" />
                   <p>Yêu thích</p>
                 </Button>
-                <Link
-                  to=""
-                  className="inline-flex items-center gap-1 justify-center px-4 py-2 text-sm font-medium text-white rounded-md transition-colors bg-blue-600 hover:bg-blue-500"
-                >
-                  <SendHorizontal className="size-4" />
-                  <p>Đọc tiếp</p>
-                </Link>
+                {readChapters?.lastRead.chapterUrl && (
+                  <Link
+                    to={`/truyen-tranh/${readChapters.lastRead.chapterUrl}`}
+                    className="inline-flex items-center gap-1 justify-center px-4 py-2 text-sm font-medium text-white rounded-md transition-colors bg-blue-600 hover:bg-blue-500"
+                  >
+                    <SendHorizontal className="size-4" />
+                    <p>Đọc tiếp</p>
+                  </Link>
+                )}
               </div>
             </div>
           </div>
@@ -234,9 +285,118 @@ const ComicDetail = () => {
             <div className="flex text-primary text-lg items-center gap-1">
               <List className="size-6" />
               <p>Danh sách chương</p>
+              {isLogin && (
+                <Dialog open={open} onOpenChange={setOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="ml-auto bg-primary hover:bg-primary/90 text-white font-semibold py-2 px-4 rounded-full transition-all duration-200">
+                      Mở khóa nhiều chương
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-lg bg-white rounded-xl shadow-xl p-6">
+                    <DialogHeader>
+                      <DialogTitle className="text-xl font-bold text-gray-800">
+                        Mở khóa chương
+                        <span className="ml-2 text-primary font-semibold">
+                          {user?.total_coin} xu
+                        </span>
+                      </DialogTitle>
+                      <DialogDescription className="text-sm text-gray-500 mt-1">
+                        Chọn các chương bạn muốn mở khóa. Các chương đã mở sẽ
+                        không bị trừ xu.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="mt-4">
+                      <p className="text-sm font-medium text-gray-700">
+                        Số xu ít nhất cần bỏ ra:{" "}
+                        <span className="font-semibold text-primary">
+                          {totalCoinToPay} xu
+                        </span>
+                      </p>
+                      <div className="mt-4 max-h-60 overflow-y-auto pr-2">
+                        {chapterNoUnlock && chapterNoUnlock.length > 0 ? (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                            {chapterNoUnlock?.map((chapter) => (
+                              <div
+                                key={chapter.id}
+                                className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-150"
+                              >
+                                <input
+                                  type="checkbox"
+                                  id={`chapter-${chapter.id}`}
+                                  checked={selectedChapters.includes(
+                                    chapter.id
+                                  )}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setSelectedChapters([
+                                        ...selectedChapters,
+                                        chapter.id,
+                                      ]);
+                                    } else {
+                                      setSelectedChapters(
+                                        selectedChapters.filter(
+                                          (id) => id !== chapter.id
+                                        )
+                                      );
+                                    }
+                                  }}
+                                  className="h-5 w-5 text-primary focus:ring-primary rounded border-gray-300"
+                                  aria-label={`Chọn chương ${chapter.chapter_name}`}
+                                />
+                                <label
+                                  htmlFor={`chapter-${chapter.id}`}
+                                  className="flex-1 text-sm text-gray-700 cursor-pointer"
+                                >
+                                  Chương {chapter.chapter_name}
+                                  {chapter.price_xu && (
+                                    <span className="ml-1 text-xs text-gray-500">
+                                      ({chapter.price_xu} xu)
+                                    </span>
+                                  )}
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-gray-500 text-center py-4">
+                            Không có chương nào để mở khóa.
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="mt-6 flex justify-end gap-3">
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setOpen(false);
+                          setSelectedChapters([]);
+                        }}
+                        className="text-gray-600 border-gray-300 hover:bg-gray-100"
+                      >
+                        Hủy
+                      </Button>
+                      <Button
+                        onClick={handleUnloclManyChapter}
+                        disabled={isLoading || selectedChapters.length === 0}
+                        className="bg-primary hover:bg-primary/90 text-white font-semibold py-2 px-4 rounded-full flex items-center gap-2"
+                      >
+                        {isLoading && (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        )}
+                        Mở khóa
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              )}
             </div>
+
             {comic?.chapters && (
-              <ListChapter chapters={comic?.chapters} comicId={comic.id} />
+              <ListChapter
+                chapters={comic?.chapters}
+                comicId={comic.id}
+                chapterHistory={readChapters?.chapterIds || []}
+              />
             )}
             {comic?.id && (
               <Comments

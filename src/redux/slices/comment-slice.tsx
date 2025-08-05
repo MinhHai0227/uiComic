@@ -2,25 +2,28 @@ import {
   getAllComemntByComicIdApi,
   getAllCommentByChapterIdApi,
 } from "@/services/comment-service";
-import { CommentResponse } from "@/types/comment-type";
+import { commentParams, CommentResponse } from "@/types/comment-type";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
-export const getAllCommentByComicId = createAsyncThunk<CommentResponse, number>(
-  "comment/getAllCommentByComicId",
-  async (id, thunkAPI) => {
-    try {
-      return await getAllComemntByComicIdApi(id);
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Lỗi không xác định"
-      );
-    }
-  }
-);
-
-export const getAllCommentByChapterId = createAsyncThunk<CommentResponse,number>("comment/getAllCommentByChapterId", async (id, thunkAPI) => {
+export const getAllCommentByComicId = createAsyncThunk<
+  CommentResponse,
+  { id: number; params: commentParams }
+>("comment/getAllCommentByComicId", async ({ id, params }, thunkAPI) => {
   try {
-    return await getAllCommentByChapterIdApi(id);
+    return await getAllComemntByComicIdApi(id, params);
+  } catch (error: any) {
+    return thunkAPI.rejectWithValue(
+      error.response?.data?.message || "Lỗi không xác định"
+    );
+  }
+});
+
+export const getAllCommentByChapterId = createAsyncThunk<
+  CommentResponse,
+  { id: number; params: commentParams }
+>("comment/getAllCommentByChapterId", async ({ id, params }, thunkAPI) => {
+  try {
+    return await getAllCommentByChapterIdApi(id, params);
   } catch (error: any) {
     return thunkAPI.rejectWithValue(
       error.response?.data?.message || "Lỗi không xác định"

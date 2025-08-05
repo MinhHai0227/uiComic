@@ -10,7 +10,6 @@ import {
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import {
   getCategoryBySlug,
-  resetCategorySlug,
 } from "@/redux/slices/category-slice";
 import { getAllCountry } from "@/redux/slices/country-slice";
 import dayjs from "dayjs";
@@ -31,7 +30,7 @@ const GenrePage = () => {
   const [page, setPage] = useState(1);
   const [country, setCountry] = useState<number | undefined>(undefined);
   const [status, setStatus] = useState<string | undefined>(undefined);
-  const [sort, setSort] = useState(2);
+  const [sort, setSort] = useState(1);
   const navigate = useNavigate();
   const { loading, categorySlug, data } = useAppSelector(
     (state) => state.category
@@ -166,8 +165,8 @@ const GenrePage = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectItem value="2">Ngày đăng tăng dần</SelectItem>
-                    <SelectItem value="1">Ngày đăng giảm dần</SelectItem>
+                    <SelectItem value="1">Ngày đăng tăng dần</SelectItem>
+                    <SelectItem value="2">Ngày đăng giảm dần</SelectItem>
                     <SelectItem value="3">Lượt xem tăng dần</SelectItem>
                     <SelectItem value="4">Lượt xem giảm dần</SelectItem>
                   </SelectGroup>
